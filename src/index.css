@@ -1,0 +1,10 @@
+/* index.css or global styles */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom spinner (Loader) */
+.loader {
+  border-color: #2dd4bf transparent #2dd4bf transparent; /* cyan-400 alternating */
+}
+
