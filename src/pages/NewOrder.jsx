@@ -1,31 +1,47 @@
-import React, { useState } from 'react';
-import { toast, ToastContainer } from 'react-toastify';
-import { FaUser, FaIdBadge, FaTshirt, FaListOl, FaStickyNote, FaArrowLeft } from 'react-icons/fa';
-import { useOrder } from '../context/OrderContext';
-import { useNavigate, Link } from 'react-router-dom';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useState, useEffect } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import {
+  FaIdBadge,
+  FaTshirt,
+  FaListOl,
+  FaStickyNote,
+  FaArrowLeft,
+} from "react-icons/fa";
+import { useNavigate, Link } from "react-router-dom";
+import axios from "axios";
+import "react-toastify/dist/ReactToastify.css";
+import Loader from "../components/Loader";
 
-const laundryItems = [
-  'Shirt',
-  'Pant',
-  'Kurti',
-  'Bedsheet',
-  'Towel',
-  'Saree',
-  'Blanket',
-];
+const laundryItems = ["Shirt", "Pant", "Kurti", "Bedsheet", "Towel", "Saree", "Blanket"];
+
+const PRICES = {
+  Shirt: 10,
+  Pant: 12,
+  Kurti: 15,
+  Bedsheet: 20,
+  Towel: 8,
+  Saree: 25,
+  Blanket: 30,
+};
 
 const NewOrder = () => {
-  const { addOrder } = useOrder();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState("");
 
   const [form, setForm] = useState({
-    name: '',
-    hostelId: '',
     selectedItems: [],
-    quantity: '',
-    notes: '',
+    quantity: "",
+    notes: "",
   });
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("appUser"));
+    if (user?.id) {
+      setUserId(user.id);
+    }
+    setLoading(false);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,95 +50,84 @@ const NewOrder = () => {
 
   const handleCheckboxChange = (item) => {
     setForm((prev) => {
-      const alreadySelected = prev.selectedItems.includes(item);
-      return {
-        ...prev,
-        selectedItems: alreadySelected
-          ? prev.selectedItems.filter((i) => i !== item)
-          : [...prev.selectedItems, item],
-      };
+      const selected = prev.selectedItems.includes(item)
+        ? prev.selectedItems.filter((i) => i !== item)
+        : [...prev.selectedItems, item];
+      return { ...prev, selectedItems: selected };
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!form.name || !form.hostelId || !form.selectedItems.length || !form.quantity) {
-      toast.error('Please fill in all required fields.');
+    if (!form.selectedItems.length || !form.quantity) {
+      toast.error("Please select items and quantity");
       return;
     }
 
-    const newOrder = {
-      ...form,
-        id: `${form.hostelId}`,
-        date: new Date().toISOString().split('T')[0],
-        items: form.selectedItems,
-        status: 'Received',
-        total: `₹${Math.floor(Math.random() * (100 - 50 + 1)) + 50}`,
-        timestamp: new Date().toLocaleString(),
-    };
+    const quantityPerItem = Math.floor(form.quantity / form.selectedItems.length);
+    const items = form.selectedItems.map((clothType) => ({
+      clothType,
+      quantity: quantityPerItem || 1,
+    }));
 
-    addOrder(newOrder);
-    toast.success('Order placed successfully!');
+    const totalAmount = items.reduce((sum, item) => {
+      const price = PRICES[item.clothType] || 10;
+      return sum + price * item.quantity;
+    }, 0);
 
-    setTimeout(() => {
-      navigate('/orders');
-    }, 2000);
+    try {
+      setLoading(true);
+      const user = JSON.parse(localStorage.getItem("appUser"));
+      const token = user.token;
 
-    setForm({
-      name: '',
-      hostelId: '',
-      selectedItems: [],
-      quantity: '',
-      notes: '',
-    });
+      await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/api/orders/placeOrder`,
+        { items, totalAmount, notes: form.notes },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      toast.success("✅ Order placed successfully!");
+      setForm({ selectedItems: [], quantity: "", notes: "" });
+
+      setTimeout(() => {
+        navigate("/orders");
+      }, 2000);
+    } catch (error) {
+      console.error("Order placement failed:", error);
+      toast.error(
+        error.response?.data?.message || "❌ Failed to place order. Try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
+  if (loading) return <Loader />;
+
   return (
-    <div className=" min-h-screen py-10 px-4 mt-8 sm:px-8 bg-white dark:bg-black">
+    <div className="min-h-screen py-10 px-4 mt-16 sm:px-8 bg-white dark:bg-black">
       <ToastContainer position="top-right" autoClose={2000} />
       <div className="max-w-2xl mx-auto bg-gray-100 dark:bg-zinc-800 p-6 rounded shadow-md">
-        <h2 className="text-3xl font-bold mb-8 text-center text-[#900000] dark:text-yellow-400 dark:hover:text-[#109000]">
+        <h2 className="text-3xl font-bold mb-8 text-center text-[#900000] dark:text-yellow-400">
           🧺 Place a New Laundry Order
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Name */}
-          <div>
-            <label className="mb-1 font-semibold flex items-center gap-2 dark:text-yellow-400">
-              <FaUser className="text-[#900000] dark:text-yellow-400" /> Name<p className='text-[#900000]'> *</p> 
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 dark:border-zinc-600 rounded dark:bg-zinc-700 dark:text-white"
-              placeholder="Enter your name"
-              required
-            />
-          </div>
-
-          {/* Hostel ID*/}
           <div>
             <label className="mb-1 font-semibold dark:text-yellow-400 flex items-center gap-2">
-              <FaIdBadge className="text-[#900000] dark:text-yellow-400" /> Hostel ID<p className='text-[#900000]'> *</p>
+              <FaIdBadge className="text-[#900000] dark:text-yellow-400" />
+              User ID: <span className="text-sm">{userId}</span>
             </label>
-            <input
-              type="text"
-              name="hostelId"
-              value={form.hostelId}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 dark:border-zinc-600 rounded dark:bg-zinc-700 dark:text-white"
-              placeholder="e.g., RGUKT123"
-              required
-            />
           </div>
 
-          {/* Laundry Items*/}
+          {/* Laundry Items */}
           <div>
-            <label className="mb-2 font-semibold  dark:text-yellow-400 flex items-center gap-2">
-              <FaTshirt className="text-[#900000] dark:text-yellow-400" /> Select Items<p className='text-[#900000]'> *</p>
+            <label className="mb-2 font-semibold dark:text-yellow-400 flex items-center gap-2">
+              <FaTshirt className="text-[#900000] dark:text-yellow-400" />
+              Select Items<span className="text-[#900000]">*</span>
             </label>
             <div className="flex flex-wrap gap-4">
               {laundryItems.map((item) => (
@@ -140,10 +145,11 @@ const NewOrder = () => {
             </div>
           </div>
 
-          {/* Quantity*/}
+          {/* Quantity */}
           <div>
             <label className="mb-1 font-semibold dark:text-yellow-400 flex items-center gap-2">
-              <FaListOl className="text-[#900000] dark:text-yellow-400" /> Total Quantity<p className='text-[#900000]'> *</p>
+              <FaListOl className="text-[#900000] dark:text-yellow-400" />
+              Total Quantity<span className="text-[#900000]">*</span>
             </label>
             <input
               type="number"
@@ -159,7 +165,8 @@ const NewOrder = () => {
           {/* Notes */}
           <div>
             <label className="mb-1 font-semibold dark:text-yellow-400 flex items-center gap-2">
-              <FaStickyNote className="text-[#900000] dark:text-yellow-400" /> Special Notes
+              <FaStickyNote className="text-[#900000] dark:text-yellow-400" />
+              Special Notes
             </label>
             <textarea
               name="notes"

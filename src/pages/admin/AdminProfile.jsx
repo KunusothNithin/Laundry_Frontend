@@ -3,10 +3,10 @@ import { FaUserCircle, FaSignOutAlt, FaBox, FaEye } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { AuthContext } from "../context/AuthContext";
-import Loader from "../components/Loader";
+import { AuthContext } from "../../context/AuthContext";
+import Loader from "../../components/Loader";
 
-const Profile = () => {
+const AdminProfile = () => {
   const navigate = useNavigate();
   const { logout } = useContext(AuthContext);
   const [loading, setLoading] = useState(true);
@@ -128,14 +128,6 @@ const Profile = () => {
             Update Profile
             <input type="file" accept="image/*" className="hidden" disabled />
           </label>
-
-          <Link
-            to="/contact"
-            className="flex items-center gap-2 px-4 py-2 bg-[#900000] hover:bg-[#7b0000] text-white rounded font-medium"
-          >
-            <FaSignOutAlt /> Contact Admin
-          </Link>
-
           <Link
             to="/orders"
             className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded font-medium"
@@ -158,4 +150,5 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default AdminProfile;
+

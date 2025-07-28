@@ -12,7 +12,7 @@ const features = [
   {
     icon: <FaTruck size={30} />,
     title: "Fast Pickup & Delivery",
-    description: "Timely pickup and doorstep delivery of your clothes.",
+    description: "Timely pickup and fast delivery of your clothes.",
   },
   {
     icon: <FaClock size={30} />,
@@ -26,9 +26,15 @@ const features = [
   },
 ];
 
+const timings = [
+  { day: "Monday - Friday", hours: "9:00 AM – 6:00 PM" },
+  { day: "Saturday", hours: "6:00 AM – 8:00 PM"  },
+  { day: "Sunday", hours: "8:00 AM – 8:00 PM" },
+];
+
 const Home = () => {
   return (
-    <section className="mt-8 min-h-screen bg-gradient-to-br from-white to-white dark:from-black dark:to-black flex flex-col items-center justify-center px-4 py-12 transition-colors duration-500">
+    <section className="mt-10 min-h-screen bg-gradient-to-br from-white to-white dark:from-black dark:to-black flex flex-col items-center justify-center px-4 py-12 transition-colors duration-500">
       {/* Heading Section */}
       <motion.div
         className="max-w-5xl text-center mb-10"
@@ -37,11 +43,10 @@ const Home = () => {
         transition={{ duration: 0.6 }}
       >
         <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-4">
-          Welcome to <span className="text-[#900000] dark:text-yellow-400">Smart Laundry Management</span>
+          Welcome to <span className="text-[#900000] dark:text-yellow-400">Smart Laundry Management</span> RGUKT-Basar
         </h1>
         <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300">
-          Simplify your laundry chores with seamless booking, real-time tracking,
-          and doorstep delivery.
+          Simplify your laundry chores with seamless booking, real-time tracking.
         </p>
         <div className="mt-6 flex justify-center space-x-4">
           <Link
@@ -78,6 +83,25 @@ const Home = () => {
             <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">{feature.description}</p>
           </div>
         ))}
+      </motion.div>
+       {/* Timing Section */}
+      <motion.div
+        className="mt-16 text-center"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6, duration: 0.5 }}
+      >
+        <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-4 flex items-center justify-center gap-2">
+          <FaClock className="text-[#900000] dark:text-yellow-400" />
+          Working Hours
+        </h2>
+        <ul className="text-gray-700 dark:text-gray-300 space-y-2">
+          {timings.map((item, index) => (
+            <li key={index} className="text-lg">
+              <strong>{item.day}:</strong> {item.hours}
+            </li>
+          ))}
+        </ul>
       </motion.div>
     </section>
   );

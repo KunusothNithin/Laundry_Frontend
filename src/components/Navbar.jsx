@@ -38,7 +38,7 @@ const Navbar = () => {
   const authLinks = isLoggedIn
     ? [
         { name: "Profile", path: "/profile", icon: <FaUserCircle /> },
-        { name: "Dashboard", path: "/dashboard", icon: <FaTshirt /> },
+        // { name: "Dashboard", path: "/dashboard", icon: <FaTshirt /> },
         { name: "Orders", path: "/orders", icon: <FaMoneyBillAlt /> },
       ]
     : [
@@ -126,7 +126,7 @@ const Navbar = () => {
                 <Link
                   to={link.path}
                   onClick={() => setMenuOpen(false)}
-                  className={`block py-2 hover:text-[#109000] flex items-center gap-2 dark:hover:text-[#109000] ${
+                  className={`py-2 hover:text-[#109000] flex items-center gap-2 dark:hover:text-[#109000] ${
                     location.pathname === link.path
                       ? "text-[#109000]"
                       : theme === "dark"

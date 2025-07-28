@@ -1,9 +1,9 @@
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { ThemeContext } from '../context/ThemeContext';
-import { AuthContext } from "../context/AuthContext";
+import { ThemeContext } from '../../context/ThemeContext';
+import { AuthContext } from "../../context/AuthContext";
 
-const Footer = () => {
+const AdminFooter = () => {
   const { user, logout } = useContext(AuthContext);
   const { theme } = useContext(ThemeContext);
 
@@ -30,9 +30,9 @@ const Footer = () => {
         <div>
           <h3 className="text-lg font-semibold mb-2 hover:text-[#209000]">Quick Links</h3>
           <ul className={`space-y-2 text-sm ${descriptionText}`}>
-            <li><Link to="/" className={`${linkHoverColor}`}>Home</Link></li>
+            {/* <li><Link to="/" className={`${linkHoverColor}`}>Home</Link></li> */}
             <li><Link to="/pricing" className={`${linkHoverColor}`}>Pricing</Link></li>
-           {isLoggedIn &&  <li><Link to="/order-tracking" className={`${linkHoverColor}`}>Order Tracking</Link></li>}
+           {isLoggedIn &&  <li><Link to="/allusers" className={`${linkHoverColor}`}>All Users</Link></li>}
             {isLoggedIn && <li><Link to="/dashboard" className={`${linkHoverColor}`}>Dashboard</Link></li>}
           </ul>
         </div>
@@ -82,4 +82,4 @@ const Footer = () => {
   );
 };
 
-export default Footer;
+export default AdminFooter;

@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useOrder } from "../context/OrderContext";
+import { AuthContext } from "../context/AuthContext";
 import { Link } from "react-router-dom";
+import axios from "axios";
+
 import {
   FaCheckCircle,
   FaTshirt,
@@ -13,39 +16,47 @@ import {
 } from "react-icons/fa";
 
 const OrderTracking = () => {
-  const { orders } = useOrder();
+  const { token } = useContext(AuthContext);
   const [orderId, setOrderId] = useState("");
   const [orderStatus, setOrderStatus] = useState(null);
 
-  // ✅ Dummy fallback data
-  const dummyStatus = {
-    RGUKT123: {
-      status: "Washing",
-      stages: ["Received", "Sorting", "Washing", "Drying", "Ready", "Delivered"],
-    },
-    RGUKT456: {
-      status: "Delivered",
-      stages: ["Received", "Sorting", "Washing", "Drying", "Ready", "Delivered"],
-    },
-  };
-
-  const handleTrackOrder = () => {
+  const handleTrackOrder = async () => {
     const id = orderId.trim();
+    if (!id) return;
 
-    // ✅ Find in real orders
-    const order = orders.find((o) => o.id === id);
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_BASE_URL}/api/orders/orderStatus/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-    if (order) {
-      // You can customize this logic if your order includes its status
+      const order = response.data;
+      console.log("Order fetched:", order);
+
+      const validStages = [
+        "Received",
+        "Sorting",
+        "Washing",
+        "Drying",
+        "Ready",
+        "Delivered",
+      ];
+
+      // Validate status
+      const currentStatus = validStages.includes(order.status)
+        ? order.status
+        : "Received";
+
       setOrderStatus({
-        status: order.status || "Sorting", // You can set random or actual status here
-        stages: ["Received", "Sorting", "Washing", "Drying", "Ready", "Delivered"],
+        status: currentStatus,
+        stages: validStages,
       });
-    } else if (dummyStatus[id]) {
-      // ✅ Fall back to dummy data
-      setOrderStatus(dummyStatus[id]);
-    } else {
-      // ❌ Not found in either
+    } catch (error) {
+      console.error("Order tracking failed:", error);
       setOrderStatus({ status: "Not Found", stages: [] });
     }
   };
@@ -90,7 +101,7 @@ const OrderTracking = () => {
           type="text"
           value={orderId}
           onChange={(e) => setOrderId(e.target.value)}
-          placeholder="Enter Order ID (e.g., RGUKT123)"
+          placeholder="Enter Order ID"
           className="w-full p-3 border text-black border-gray-300 dark:border-zinc-600 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-[#900000]"
         />
 
@@ -135,11 +146,11 @@ const OrderTracking = () => {
         )}
       </div>
       <Link
-              to="/orders"
-              className="bg-[#990000] mt-8 dark:bg-yellow-400 hover:bg-gray-400 text-white font-semibold py-2 px-5 rounded transition flex items-center gap-2"
-            >
-              <FaArrowLeft /> Back to Orders
-        </Link>
+        to="/orders"
+        className="bg-[#990000] mt-8 dark:bg-yellow-400 hover:bg-gray-400 text-white font-semibold py-2 px-5 rounded transition flex items-center gap-2"
+      >
+        <FaArrowLeft /> Back to Orders
+      </Link>
     </div>
   );
 };
