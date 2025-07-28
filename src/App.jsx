@@ -1,17 +1,19 @@
-import React,{useState, useEffect} from "react";
+// src/App.jsx
+import React, { useContext } from "react";
 import { Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-// Components
+
+// Context
+import { AuthContext } from "./context/AuthContext";
+
+// Public Navs
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-//admin components
 
+// Admin Navs
 import AdminNavbar from "./components/admin/AdminNavbar";
 import AdminFooter from "./components/admin/AdminFooter";
-import AdminOrders from "./pages/admin/AdminOrders";
-import AdminProfile from "./pages/admin/AdminProfile"
-import AllUsers from "./pages/admin/AllUsers"
 
 // Pages
 import Landing from "./pages/Home";
@@ -25,20 +27,22 @@ import Contact from "./pages/Contact";
 import Orders from "./pages/Orders";
 import NewOrder from "./pages/NewOrder";
 import UpdateProfile from "./pages/UpdateProfile";
+import AdminOrders from "./pages/admin/AdminOrders";
+import AdminProfile from "./pages/admin/AdminProfile";
+import AllUsers from "./pages/admin/AllUsers";
 
 function App() {
-  const [role, setRole] = useState('user');
+  const { user } = useContext(AuthContext);
+  const isLoggedIn = !!user;
+  const role = user?.role || "guest";
 
-  useEffect(() => {
-    const fetchRole = async (req, res) => {
-          const user = JSON.parse(localStorage.getItem('appUser'));
-          setRole(user.role);
-    };
-    fetchRole();
-  },[]);
+  const isAdmin = isLoggedIn && role === "admin";
+  const isUser = isLoggedIn && role === "user";
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-white">
-      {role == 'admin'? (<AdminNavbar/>):(<Navbar />) }
+      {/* Dynamic Navbar */}
+      {isAdmin ? <AdminNavbar /> : <Navbar />}
 
       <main className="flex-grow">
         <Routes>
@@ -48,17 +52,17 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/order-tracking" element={<OrderTracking />} />
           <Route path="/pricing" element={<Pricing />} />
-          <Route path="/profile" element={role == 'admin'? (<AdminProfile />):(<Profile />) } />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/orders" element={role == 'admin'? (<AdminOrders />):(<Orders />) } />
+          <Route path="/profile" element={isAdmin ? <AdminProfile /> : <Profile />} />
+          <Route path="/orders" element={isAdmin ? <AdminOrders /> : <Orders />} />
           <Route path="/new-order" element={<NewOrder />} />
           <Route path="/updateprofile" element={<UpdateProfile />} />
-          <Route path="/allusers" element={<AllUsers/>} />
-          
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/allusers" element={<AllUsers />} />
         </Routes>
       </main>
-      
-       {role == 'admin'? (<AdminFooter />):(<Footer />) }
+
+      {/* Dynamic Footer */}
+      {isAdmin ? <AdminFooter /> : <Footer />}
       <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
