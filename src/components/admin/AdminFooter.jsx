@@ -17,7 +17,7 @@ const AdminFooter = () => {
 
   return (
     <footer className={`${bgColor} ${textColor} py-8 w-full transition-colors duration-300 border-t`}>
-      <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
+      <div className="max-w-7xl mx-auto px-4 flex align-center justify-between gap-10">
         {/* Section 1: Logo & Description */}
         <div>
           <h2 className="text-xl font-bold text-white hover:text-[#209000] dark:text-yellow-400 dark:hover:text-[#209000]">LaundryApp</h2>
@@ -61,16 +61,6 @@ const AdminFooter = () => {
                 <li><Link to="/register" className={`${linkHoverColor}`}>Register</Link></li>
               </>
             )}
-          </ul>
-        </div>
-
-        {/* Section 4: Contact */}
-        <div>
-          <h3 className="text-lg font-semibold mb-2 hover:text-[#209000]">Contact Us</h3>
-          <ul className={`space-y-2 text-sm ${descriptionText}`}>
-            <li>Email: <a href="mailto:support@laundryapp.com" className={`${linkHoverColor}`}>support@laundryapp.com [visit Contact Page]</a></li>
-            <li>Phone: <a href="tel:+91 9876543210" className={`${linkHoverColor}`}>+91 9876543210 [visit Contact Page]</a></li>
-            <li><Link to="/contact" className={`${linkHoverColor}`}>Contact Page</Link></li>
           </ul>
         </div>
       </div>
